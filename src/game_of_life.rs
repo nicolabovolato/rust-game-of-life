@@ -129,6 +129,119 @@ impl fmt::Display for World {
             }
         }
     
-        writeln!(f,"{}{}{}",opening_str,world_str,closing_str)
+        writeln!(f,"{}{}{}",opening_str,world_str,closing_str)  
     }
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    #[should_panic]
+    fn new_world_size_greater_than_max() {
+
+        let world_size = super::World::MAX_WORLD_SIZE + 1;
+
+        let _world = super::World::new(0,world_size).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn new_world_size_lesser_than_one() {
+
+        let world_size = 0;
+
+        let _world = super::World::new(0,world_size).unwrap();
+    }
+
+    #[test]
+    fn is_stable_returns_correct_value() {
+
+        let mut world = super::World{ world_size: 1, world: 0, states: vec![0], stable: false };
+
+        assert_eq!(world.is_stable(), false);
+
+        world.stable = true;
+
+        assert_eq!(world.is_stable(),  true);
+    }
+
+    #[test]
+    fn get_cell_returns_correct_value() {
+        let seed = 0b010010001;  
+        let world = super::World{ world_size: 3, world: seed, states: vec![seed], stable: false };
+
+        assert_eq!(world.get_cell(0),1);
+        assert_eq!(world.get_cell(1),0);
+        assert_eq!(world.get_cell(2),0);
+        assert_eq!(world.get_cell(3),0);
+        assert_eq!(world.get_cell(4),1);
+        assert_eq!(world.get_cell(5),0);
+        assert_eq!(world.get_cell(6),0);
+        assert_eq!(world.get_cell(7),1);
+        assert_eq!(world.get_cell(8),0);
+    }
+
+    #[test]
+    fn count_nearby_cells_returns_correct_value() {
+        
+        /*
+            1110
+            0101
+            1100
+            1000
+        */
+
+        let seed = 0b0001001110100111;  
+        let world = super::World{ world_size: 4, world: seed, states: vec![seed], stable: false };
+
+        assert_eq!(world.count_nearby_cells(0),  2);
+        assert_eq!(world.count_nearby_cells(1),  3);
+        assert_eq!(world.count_nearby_cells(2),  3);
+        assert_eq!(world.count_nearby_cells(3),  2);
+        assert_eq!(world.count_nearby_cells(4),  5);
+        assert_eq!(world.count_nearby_cells(5),  5);
+        assert_eq!(world.count_nearby_cells(6),  5);
+        assert_eq!(world.count_nearby_cells(7),  1);
+        assert_eq!(world.count_nearby_cells(8),  3);
+        assert_eq!(world.count_nearby_cells(9),  3);
+        assert_eq!(world.count_nearby_cells(10), 3);
+        assert_eq!(world.count_nearby_cells(11), 1);
+        assert_eq!(world.count_nearby_cells(12), 2);
+        assert_eq!(world.count_nearby_cells(13), 3);
+        assert_eq!(world.count_nearby_cells(14), 1);
+        assert_eq!(world.count_nearby_cells(15), 0);
+    }
+
+    #[test]
+    fn advance_works_correctly() {
+        
+        /*
+            110  ->  110  -> 010 -> 000 -> 000
+            010      001     001    011    000
+            110      110     010    000    000
+        */
+
+        let seed = 0b011010011;  
+        let mut world = super::World{ world_size: 3, world: seed, states: vec![seed], stable: false };
+
+        assert_eq!(world.world, seed);
+
+        world.advance();
+        assert_eq!(world.world, 0b011100011);
+
+        world.advance();
+        assert_eq!(world.world, 0b010100010);
+
+        world.advance();
+        assert_eq!(world.world, 0b000110000);
+
+        world.advance();
+        assert_eq!(world.world, 0b0);
+
+        world.advance();
+        assert_eq!(world.world, 0b0);
+        assert_eq!(world.stable, true);
+    }
+
 }
