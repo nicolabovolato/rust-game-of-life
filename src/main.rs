@@ -39,32 +39,33 @@ fn parse_params_from_args() -> (u128, u8) {
     let args: Vec<String> = env::args().collect();
     let mut iter = args.iter().skip(1);
 
+    let mut wrong_usage = false;
     let mut seed: u128 = 0;
     let mut world_size: u8 = 3;
 
     while let Some(arg) = iter.next() {
 
         match &arg[..] {
-            "--seed" | "-s" => match iter.next() {
-                Some(s) => match s.parse() {
-                    Ok(s) => seed = s,
-                    _ => print_help_and_exit(1)
+            
+            "--seed" | "-s" => 
+                if let Ok(s) = iter.next().unwrap_or(&" ".to_string()).parse() {
+                    seed = s
                 }
-                _ => print_help_and_exit(1)
-            },
-            "--world-size" | "-w" => match iter.next() {
-                Some(w) => match w.parse() {
-                    Ok(w) => world_size = w,
-                    _ => print_help_and_exit(1)
+                else { wrong_usage= true; },
+
+            "--world-size" | "-w" => 
+                if let Ok(w) = iter.next().unwrap_or(&" ".to_string()).parse() {
+                    world_size = w
                 }
-                _ => print_help_and_exit(1)
-            },
+                else { wrong_usage= true; },
+
             "--help" | "-h" => print_help_and_exit(0),
-            _ => print_help_and_exit(1)
+
+            _ => wrong_usage= true
         }
     }
 
-    if seed == 0 { print_help_and_exit(1); }
+    if wrong_usage || seed == 0 { print_help_and_exit(1); }
 
     (seed, world_size)
 }
