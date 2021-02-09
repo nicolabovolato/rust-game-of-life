@@ -108,7 +108,7 @@ impl fmt::Display for World {
         
         let mut world_str = String::from("");
     
-        let spacer = "─".repeat(self.world_size as usize);
+        let spacer = "─".repeat(self.world_size as usize * 2);
     
         let opening_str = format!("┌{}┐\n",spacer);
         let closing_str = format!("└{}┘",spacer);
@@ -121,7 +121,7 @@ impl fmt::Display for World {
     
             let current = self.get_cell(i);        
     
-            world_str.push(if current == 1 {'■'} else {' '});
+            world_str.push_str(if current == 1 {"██"} else {"  "});
 
             if (i + 1) % self.world_size == 0 {
                 world_str.push('|');
