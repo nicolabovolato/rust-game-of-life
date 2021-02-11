@@ -7,11 +7,13 @@ Rules:
 */
 
 mod game_of_life;
+
 use game_of_life::World;
-use std::thread;
-use std::time;
-use std::env;
-use std::process;
+
+use std::{ thread, time, env, process };
+
+use num_bigint::BigUint;
+use num_traits::Zero;
 
 fn main() {
 
@@ -34,13 +36,13 @@ fn main() {
     println!("World is stable");
 }
 
-fn parse_params_from_args() -> (u128, u8) {
+fn parse_params_from_args() -> (BigUint, u8) {
 
     let args: Vec<String> = env::args().collect();
     let mut iter = args.iter().skip(1);
 
     let mut wrong_usage = false;
-    let mut seed: u128 = 0;
+    let mut seed: BigUint = Zero::zero();
     let mut world_size: u8 = 3;
 
     while let Some(arg) = iter.next() {
@@ -51,13 +53,13 @@ fn parse_params_from_args() -> (u128, u8) {
                 if let Ok(s) = iter.next().unwrap_or(&" ".to_string()).parse() {
                     seed = s
                 }
-                else { wrong_usage= true; },
+                else { wrong_usage = true; },
 
             "--world-size" | "-w" => 
                 if let Ok(w) = iter.next().unwrap_or(&" ".to_string()).parse() {
                     world_size = w
                 }
-                else { wrong_usage= true; },
+                else { wrong_usage = true; },
 
             "--help" | "-h" => print_help_and_exit(0),
 
@@ -65,7 +67,7 @@ fn parse_params_from_args() -> (u128, u8) {
         }
     }
 
-    if wrong_usage || seed == 0 { print_help_and_exit(1); }
+    if wrong_usage || seed == Zero::zero() { print_help_and_exit(1); }
 
     (seed, world_size)
 }
